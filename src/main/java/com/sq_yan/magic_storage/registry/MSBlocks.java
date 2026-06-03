@@ -1,0 +1,37 @@
+package com.sq_yan.magic_storage.registry;
+
+import com.sq_yan.magic_storage.MagicStorage;
+import com.sq_yan.magic_storage.block.HeartStorageBlock;
+import com.sq_yan.magic_storage.block.StorageCellBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
+
+public final class MSBlocks {
+    public static final DeferredRegister<Block> REGISTRY = DeferredRegister.create(ForgeRegistries.BLOCKS, MagicStorage.MODID);
+
+    public static final RegistryObject<HeartStorageBlock> HEART_STORAGE = REGISTRY.register("heart_storage",
+        () -> new HeartStorageBlock(BlockBehaviour.Properties.of()
+            .setId(REGISTRY.key("heart_storage"))
+            .mapColor(MapColor.COLOR_PURPLE)
+            .strength(5.0f, 6.0f)
+            .sound(SoundType.METAL)
+            .requiresCorrectToolForDrops()
+        )
+    );
+
+    public static final RegistryObject<StorageCellBlock> STORAGE_CELL = REGISTRY.register("storage_cell",
+        () -> new StorageCellBlock(BlockBehaviour.Properties.of()
+            .setId(REGISTRY.key("storage_cell"))
+            .mapColor(MapColor.WOOD)
+            .strength(2.5f)
+            .sound(SoundType.WOOD)
+        )
+    );
+
+    private MSBlocks() {}
+}

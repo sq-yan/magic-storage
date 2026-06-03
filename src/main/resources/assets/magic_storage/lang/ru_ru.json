@@ -1,0 +1,10 @@
+{
+  "block.magic_storage.heart_storage": "Сердце хранилища",
+  "block.magic_storage.storage_cell": "Ячейка хранилища",
+  "message.magic_storage.no_cells": "Сначала подключите ячейку хранилища",
+  "gui.magic_storage.search": "Поиск",
+  "gui.magic_storage.sort.none": "Сортировка: без сортировки",
+  "gui.magic_storage.sort.name": "Сортировка: по имени",
+  "gui.magic_storage.sort.count": "Сортировка: по количеству",
+  "gui.magic_storage.sort.mod": "Сортировка: по моду"
+}

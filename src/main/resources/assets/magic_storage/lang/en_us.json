@@ -1,0 +1,10 @@
+{
+  "block.magic_storage.heart_storage": "Heart Storage",
+  "block.magic_storage.storage_cell": "Storage Cell",
+  "message.magic_storage.no_cells": "Connect at least one Storage Cell first",
+  "gui.magic_storage.search": "Search",
+  "gui.magic_storage.sort.none": "Sort: original order",
+  "gui.magic_storage.sort.name": "Sort: by name",
+  "gui.magic_storage.sort.count": "Sort: by stack size",
+  "gui.magic_storage.sort.mod": "Sort: by mod"
+}

@@ -1,0 +1,25 @@
+modLoader="javafml"
+loaderVersion="[61,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="magic_storage"
+version="0.1.0"
+displayName="Magic Storage"
+authors="sq_yan"
+description='''Прототип хранилища в стиле Magic Storage из tModLoader.
+Heart Storage + Storage Cells, BFS-сеть по 6 граням, GUI с сортировкой и поиском.'''
+
+[[dependencies.magic_storage]]
+    modId="forge"
+    mandatory=true
+    versionRange="[61,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.magic_storage]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.21.11,1.22,)"
+    ordering="NONE"
+    side="BOTH"
