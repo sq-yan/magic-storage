@@ -1,5 +1,8 @@
 {
   "variants": {
-    "": { "model": "magic_storage:block/heart_storage" }
+    "fill_level=0": { "model": "magic_storage:block/heart_storage" },
+    "fill_level=1": { "model": "magic_storage:block/heart_storage_green" },
+    "fill_level=2": { "model": "magic_storage:block/heart_storage_yellow" },
+    "fill_level=3": { "model": "magic_storage:block/heart_storage_red" }
   }
 }

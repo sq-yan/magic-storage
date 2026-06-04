@@ -1,6 +1,9 @@
 {
+  "itemGroup.magic_storage": "Magic Storage",
   "block.magic_storage.heart_storage": "Сердце хранилища",
   "block.magic_storage.storage_cell": "Ячейка хранилища",
+  "item.magic_storage.heart_storage": "Сердце хранилища",
+  "item.magic_storage.storage_cell": "Ячейка хранилища",
   "message.magic_storage.no_cells": "Сначала подключите ячейку хранилища",
   "gui.magic_storage.search": "Поиск",
   "gui.magic_storage.sort.none": "Сортировка: без сортировки",

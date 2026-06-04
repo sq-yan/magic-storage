@@ -7,13 +7,23 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class AggregatedItemHandler implements IItemHandlerModifiable {
     private final List<StorageCellBlockEntity> cells;
 
     public AggregatedItemHandler(List<StorageCellBlockEntity> cells) {
-        this.cells = cells;
+        this.cells = new ArrayList<>(cells);
+    }
+
+    public void rebuild(List<StorageCellBlockEntity> fresh) {
+        this.cells.clear();
+        this.cells.addAll(fresh);
+    }
+
+    public int cellCount() {
+        return cells.size();
     }
 
     @Override

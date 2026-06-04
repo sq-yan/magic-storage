@@ -287,7 +287,7 @@ public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu
 
     @Override
     protected void renderLabels(@NotNull GuiGraphics gfx, int mouseX, int mouseY) {
-        String indicator = menu.getUsedSlots() + " / " + menu.getTotalSlots();
+        String indicator = menu.countUsedSlots() + " / " + menu.getAggregatedSlotCount();
         gfx.drawString(this.font, indicator, 8, 6, LABEL_COLOR, false);
         gfx.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, LABEL_COLOR, false);
     }

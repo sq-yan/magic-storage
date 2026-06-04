@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CRC",
+    "C#C",
+    "CCC"
+  ],
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "R": "minecraft:redstone",
+    "#": "minecraft:chest"
+  },
+  "result": {
+    "id": "magic_storage:storage_cell",
+    "count": 1
+  }
+}
