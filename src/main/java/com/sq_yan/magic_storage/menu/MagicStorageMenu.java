@@ -25,10 +25,15 @@ import java.util.List;
 public class MagicStorageMenu extends AbstractContainerMenu {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final int GRID_COLS = 9;
+    public static final int GRID_COLS = 12;
     public static final int GRID_ROWS = 6;
     public static final int GRID_SIZE = GRID_COLS * GRID_ROWS;
     public static final int PLAYER_INV_SIZE = 36;
+    public static final int PLAYER_INV_X = 47;
+    public static final int PLAYER_INV_Y = 150;
+    public static final int HOTBAR_Y = 210;
+
+    public static final int BUTTON_QUICK_DUMP = 1;
 
     private static final int OFFSCREEN = -2000;
     private static final int REBUILD_INTERVAL_TICKS = 10;
@@ -37,6 +42,7 @@ public class MagicStorageMenu extends AbstractContainerMenu {
     private final AggregatedItemHandler aggregated;
     private final int aggregatedSlotCount;
     private final @Nullable HeartStorageBlockEntity heart;
+    private final List<BlockPos> initialCellPositions;
 
     private int rebuildCounter = 0;
 
@@ -52,17 +58,18 @@ public class MagicStorageMenu extends AbstractContainerMenu {
             ? ContainerLevelAccess.create(heart.getLevel(), heart.getBlockPos())
             : ContainerLevelAccess.NULL;
         this.aggregatedSlotCount = aggregated.getSlots();
+        this.initialCellPositions = aggregated.cellPositions();
 
         for (int i = 0; i < aggregatedSlotCount; i++) {
             addSlot(new SlotItemHandler(aggregated, i, OFFSCREEN, OFFSCREEN));
         }
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlot(new Slot(inv, 9 + row * 9 + col, 8 + col * 18, 140 + row * 18));
+                addSlot(new Slot(inv, 9 + row * 9 + col, PLAYER_INV_X + col * 18, PLAYER_INV_Y + row * 18));
             }
         }
         for (int col = 0; col < 9; col++) {
-            addSlot(new Slot(inv, col, 8 + col * 18, 198));
+            addSlot(new Slot(inv, col, PLAYER_INV_X + col * 18, HOTBAR_Y));
         }
 
         boolean isServer = heart != null && heart.getLevel() != null && !heart.getLevel().isClientSide();
@@ -110,27 +117,99 @@ public class MagicStorageMenu extends AbstractContainerMenu {
 
     @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player player, int idx) {
-        ItemStack result = ItemStack.EMPTY;
         Slot slot = this.slots.get(idx);
-        if (slot.hasItem()) {
-            ItemStack stack = slot.getItem();
-            result = stack.copy();
-            int playerStart = aggregatedSlotCount;
-            int playerEnd = aggregatedSlotCount + PLAYER_INV_SIZE;
-            if (idx < playerStart) {
-                if (!this.moveItemStackTo(stack, playerStart, playerEnd, true)) return ItemStack.EMPTY;
-            } else {
-                if (!this.moveItemStackTo(stack, 0, playerStart, false)) return ItemStack.EMPTY;
-            }
-            if (stack.isEmpty()) slot.set(ItemStack.EMPTY);
-            else slot.setChanged();
+        if (!slot.hasItem()) return ItemStack.EMPTY;
+
+        ItemStack stack = slot.getItem();
+        ItemStack result = stack.copy();
+        int playerStart = aggregatedSlotCount;
+        int playerEnd = aggregatedSlotCount + PLAYER_INV_SIZE;
+
+        if (idx < playerStart) {
+            if (!this.moveItemStackTo(stack, playerStart, playerEnd, true)) return ItemStack.EMPTY;
+        } else {
+            if (!distributeIntoStorage(stack)) return ItemStack.EMPTY;
         }
+
+        if (stack.isEmpty()) slot.set(ItemStack.EMPTY);
+        else slot.setChanged();
         return result;
+    }
+
+    /**
+     * Player -> storage shift-click: phase 1 merge into existing matching stacks,
+     * phase 2 place into first empty slots. Mutates {@code stack} count via shrink().
+     * <p>
+     * Critical: Forge {@link net.minecraftforge.items.ItemStackHandler#insertItem}
+     * stores the SAME reference (not a copy) into the slot when the slot is empty
+     * and the entire stack fits. Passing our caller's stack directly would alias
+     * the slot's contents — any later mutation (e.g. setCount(0)) would zero out
+     * the items we just inserted. We pass a copy and reconcile via {@link ItemStack#shrink}.
+     */
+    private boolean distributeIntoStorage(ItemStack stack) {
+        int before = stack.getCount();
+        if (stack.isStackable()) {
+            for (int i = 0; i < aggregatedSlotCount && !stack.isEmpty(); i++) {
+                ItemStack existing = aggregated.getStackInSlot(i);
+                if (existing.isEmpty()) continue;
+                if (!ItemStack.isSameItemSameComponents(stack, existing)) continue;
+                insertCopyAndShrink(i, stack);
+            }
+        }
+        for (int i = 0; i < aggregatedSlotCount && !stack.isEmpty(); i++) {
+            if (!aggregated.getStackInSlot(i).isEmpty()) continue;
+            insertCopyAndShrink(i, stack);
+        }
+        return stack.getCount() != before;
+    }
+
+    private void insertCopyAndShrink(int slot, ItemStack stack) {
+        ItemStack copy = stack.copy();
+        ItemStack remaining = aggregated.insertItem(slot, copy, false);
+        int inserted = copy.getCount() - remaining.getCount();
+        if (inserted > 0) stack.shrink(inserted);
+    }
+
+    /**
+     * Drop entire player main inventory (slots 9..35, no hotbar) into storage
+     * using the same merge-then-place distribution as shift-click.
+     */
+    public void quickDump(Player player) {
+        var inv = player.getInventory();
+        boolean any = false;
+        for (int i = 9; i < 36; i++) {
+            ItemStack s = inv.getItem(i);
+            if (s.isEmpty()) continue;
+            int before = s.getCount();
+            distributeIntoStorage(s);
+            if (s.getCount() != before) any = true;
+            if (s.isEmpty()) inv.setItem(i, ItemStack.EMPTY);
+        }
+        if (any) inv.setChanged();
+    }
+
+    @Override
+    public boolean clickMenuButton(@NotNull Player player, int id) {
+        if (id == BUTTON_QUICK_DUMP) {
+            if (!player.level().isClientSide()) quickDump(player);
+            return true;
+        }
+        return super.clickMenuButton(player, id);
     }
 
     @Override
     public boolean stillValid(@NotNull Player player) {
-        return stillValid(access, player, MSBlocks.HEART_STORAGE.get());
+        if (!stillValid(access, player, MSBlocks.HEART_STORAGE.get())) return false;
+        if (heart == null || heart.getLevel() == null) return true;
+        var level = heart.getLevel();
+        if (level.isClientSide()) return true;
+        for (BlockPos pos : initialCellPositions) {
+            if (!(level.getBlockEntity(pos) instanceof StorageCellBlockEntity cell) || cell.isRemoved()) {
+                LOGGER.info("[magic_storage] menu closing — cell at {} no longer present", pos);
+                return false;
+            }
+        }
+        return true;
     }
 
     private static @Nullable HeartStorageBlockEntity resolveHeart(Inventory inv, BlockPos pos) {

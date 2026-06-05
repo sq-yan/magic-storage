@@ -9,5 +9,14 @@
   "gui.magic_storage.sort.none": "Sort: original order",
   "gui.magic_storage.sort.name": "Sort: by name",
   "gui.magic_storage.sort.count": "Sort: by stack size",
-  "gui.magic_storage.sort.mod": "Sort: by mod"
+  "gui.magic_storage.sort.mod": "Sort: by mod",
+  "gui.magic_storage.filter.none": "Show all",
+  "gui.magic_storage.filter.potions": "Potions",
+  "gui.magic_storage.filter.armor": "Armor",
+  "gui.magic_storage.filter.tools": "Tools & weapons",
+  "gui.magic_storage.filter.food": "Food",
+  "gui.magic_storage.filter.blocks": "Blocks",
+  "gui.magic_storage.dump": "Dump inventory (%s)",
+  "key.categories.magic_storage": "Magic Storage",
+  "key.magic_storage.quick_dump": "Quick dump to storage"
 }

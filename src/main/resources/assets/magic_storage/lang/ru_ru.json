@@ -9,5 +9,14 @@
   "gui.magic_storage.sort.none": "Сортировка: без сортировки",
   "gui.magic_storage.sort.name": "Сортировка: по имени",
   "gui.magic_storage.sort.count": "Сортировка: по количеству",
-  "gui.magic_storage.sort.mod": "Сортировка: по моду"
+  "gui.magic_storage.sort.mod": "Сортировка: по моду",
+  "gui.magic_storage.filter.none": "Показать всё",
+  "gui.magic_storage.filter.potions": "Зелья",
+  "gui.magic_storage.filter.armor": "Броня",
+  "gui.magic_storage.filter.tools": "Инструменты и оружие",
+  "gui.magic_storage.filter.food": "Еда",
+  "gui.magic_storage.filter.blocks": "Блоки",
+  "gui.magic_storage.dump": "Сбросить инвентарь (%s)",
+  "key.categories.magic_storage": "Magic Storage",
+  "key.magic_storage.quick_dump": "Быстрый сброс в хранилище"
 }

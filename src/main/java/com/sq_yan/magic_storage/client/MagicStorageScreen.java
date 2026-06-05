@@ -1,21 +1,20 @@
 package com.sq_yan.magic_storage.client;
 
+import com.sq_yan.magic_storage.menu.FilterMode;
 import com.sq_yan.magic_storage.menu.MagicStorageMenu;
 import com.sq_yan.magic_storage.menu.SortMode;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,58 +23,106 @@ import java.util.Comparator;
 import java.util.List;
 
 public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu> {
-    private static final Identifier BG =
-        Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
 
+    // Layout constants — match MagicStorageMenu for player inv coordinates.
     private static final int GRID_COLS = MagicStorageMenu.GRID_COLS;
     private static final int GRID_ROWS = MagicStorageMenu.GRID_ROWS;
     private static final int GRID_SIZE = MagicStorageMenu.GRID_SIZE;
+    private static final int SLOT_SIZE = 18;
     private static final int OFFSCREEN = -2000;
-    private static final int LABEL_COLOR = 0xFF404040;
 
-    private static final int SCROLLBAR_X = 170;
-    private static final int SCROLLBAR_Y = 18;
-    private static final int SCROLLBAR_W = 5;
-    private static final int SCROLLBAR_H = GRID_ROWS * 18 - 2;
+    private static final int GUI_W = 256;
+    private static final int GUI_H = 236;
+
+    private static final int SEARCH_X = 8, SEARCH_Y = 4, SEARCH_W = 140, SEARCH_H = 12;
+    private static final int DUMP_X = 152, SORT_X = 172, TOP_BUTTON_Y = 3, TOP_BUTTON_SIZE = 18;
+
+    private static final int FILTER_X = 4, FILTER_Y = 22, FILTER_SIZE = 18;
+
+    private static final int GRID_X = 24, GRID_Y = 22;
+    private static final int SCROLLBAR_X = 242, SCROLLBAR_Y = 22, SCROLLBAR_W = 6;
+    private static final int SCROLLBAR_H = GRID_ROWS * SLOT_SIZE;
+
+    private static final int LABEL_Y = 134;
+
+    // Palette
+    private static final int PANEL_BG = 0xE6121220;        // dark matte glass, alpha ~90%
+    private static final int PANEL_BORDER = 0xFF8848C0;     // outer purple frame
+    private static final int INNER_PANEL = 0xFF1A1A28;      // search/scrollbar track bg
+    private static final int SLOT_BG = 0xFF222236;
+    private static final int SLOT_BORDER = 0xFF34344E;
+    private static final int SCROLLBAR_THUMB = 0xFF8848C0;
+    private static final int SCROLLBAR_THUMB_HL = 0xFFB078E8;
+    private static final int LABEL_COLOR = 0xFFE0E0F0;
+    private static final int FILL_BAR_BG = 0xFF101018;
+    private static final int FILL_GREEN = 0xFF40C060;
+    private static final int FILL_YELLOW = 0xFFE0C040;
+    private static final int FILL_RED = 0xFFD04040;
 
     private static final int GLFW_KEY_ESCAPE = 256;
 
     private SortMode sortMode = SortMode.NONE;
+    private FilterMode filterMode = FilterMode.NONE;
     private String searchText = "";
     private int scrollOffset = 0;
     private int[] orderedIndices = new int[0];
 
     private EditBox searchBox;
-    private Button sortButton;
+    private DarkSquareButton sortButton;
+    private DarkSquareButton dumpButton;
     private boolean draggingScrollbar = false;
 
     public MagicStorageScreen(MagicStorageMenu menu, Inventory inv, Component title) {
         super(menu, inv, title);
-        this.imageWidth = 176;
-        this.imageHeight = 222;
-        this.inventoryLabelY = this.imageHeight - 94;
+        this.imageWidth = GUI_W;
+        this.imageHeight = GUI_H;
+        this.inventoryLabelY = LABEL_Y;
+        this.inventoryLabelX = 8;
         this.titleLabelY = -1000;
     }
 
     @Override
     protected void init() {
         super.init();
-        this.searchBox = new EditBox(this.font, this.leftPos + 55, this.topPos + 4, 90, 12,
+
+        this.searchBox = new EditBox(this.font, this.leftPos + SEARCH_X + 2, this.topPos + SEARCH_Y + 2,
+            SEARCH_W - 4, SEARCH_H - 4,
             Component.translatable("gui.magic_storage.search"));
-        this.searchBox.setBordered(true);
+        this.searchBox.setBordered(false);
         this.searchBox.setMaxLength(64);
-        this.searchBox.setTextColor(0xFFFFFFFF);
+        this.searchBox.setTextColor(0xFFE0E0F0);
         this.searchBox.setValue(this.searchText);
         this.searchBox.setResponder(this::onSearchChanged);
         this.addRenderableWidget(this.searchBox);
 
-        this.sortButton = Button.builder(sortLabel(), btn -> onSortClicked())
-            .bounds(this.leftPos + 152, this.topPos + 3, 18, 14).build();
-        this.sortButton.setTooltip(Tooltip.create(sortTooltip()));
+        this.dumpButton = new DarkSquareButton(
+            this.leftPos + DUMP_X, this.topPos + TOP_BUTTON_Y, TOP_BUTTON_SIZE,
+            Component.literal("⇩"), dumpTooltip(), this::triggerQuickDump);
+        this.addRenderableWidget(this.dumpButton);
+
+        this.sortButton = new DarkSquareButton(
+            this.leftPos + SORT_X, this.topPos + TOP_BUTTON_Y, TOP_BUTTON_SIZE,
+            sortLabel(), sortTooltip(), this::onSortClicked);
         this.addRenderableWidget(this.sortButton);
+
+        addFilterButton(0, FilterMode.NONE, null);
+        addFilterButton(1, FilterMode.POTIONS, new ItemStack(Items.POTION));
+        addFilterButton(2, FilterMode.ARMOR, new ItemStack(Items.IRON_CHESTPLATE));
+        addFilterButton(3, FilterMode.TOOLS, new ItemStack(Items.IRON_PICKAXE));
+        addFilterButton(4, FilterMode.FOOD, new ItemStack(Items.BREAD));
+        addFilterButton(5, FilterMode.BLOCKS, new ItemStack(Items.COBBLESTONE));
 
         this.setInitialFocus(this.searchBox);
         rebuildLayout();
+    }
+
+    private void addFilterButton(int slot, FilterMode mode, ItemStack icon) {
+        this.addRenderableWidget(new FilterSpriteButton(
+            this.leftPos + FILTER_X,
+            this.topPos + FILTER_Y + slot * FILTER_SIZE,
+            mode, icon,
+            () -> this.filterMode,
+            this::onFilterSelected));
     }
 
     @Override
@@ -94,10 +141,24 @@ public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu
 
     private void onSortClicked() {
         this.sortMode = this.sortMode.next();
-        this.sortButton.setMessage(sortLabel());
-        this.sortButton.setTooltip(Tooltip.create(sortTooltip()));
+        this.sortButton.setGlyph(sortLabel());
+        this.sortButton.setTooltipText(sortTooltip());
         this.scrollOffset = 0;
         rebuildLayout();
+    }
+
+    private void onFilterSelected(FilterMode mode) {
+        if (this.filterMode != mode) {
+            this.filterMode = mode;
+            this.scrollOffset = 0;
+            rebuildLayout();
+        }
+    }
+
+    private void triggerQuickDump() {
+        if (this.minecraft != null && this.minecraft.gameMode != null) {
+            this.minecraft.gameMode.handleInventoryButtonClick(menu.containerId, MagicStorageMenu.BUTTON_QUICK_DUMP);
+        }
     }
 
     private Component sortLabel() {
@@ -113,6 +174,11 @@ public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu
         return Component.translatable("gui.magic_storage.sort." + sortMode.name().toLowerCase());
     }
 
+    private Component dumpTooltip() {
+        return Component.translatable("gui.magic_storage.dump",
+            MagicStorageClient.QUICK_DUMP.getTranslatedKeyMessage());
+    }
+
     @Override
     public boolean keyPressed(@NotNull KeyEvent event) {
         if (this.searchBox != null && this.searchBox.isFocused()) {
@@ -122,6 +188,10 @@ public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu
             }
             if (this.searchBox.keyPressed(event)) return true;
             if (this.searchBox.canConsumeInput()) return true;
+        }
+        if (MagicStorageClient.QUICK_DUMP.matches(event)) {
+            triggerQuickDump();
+            return true;
         }
         return super.keyPressed(event);
     }
@@ -179,13 +249,17 @@ public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu
     }
 
     private boolean isInGridArea(double mx, double my) {
-        return mx >= this.leftPos + 7 && mx <= this.leftPos + 169
-            && my >= this.topPos + 17 && my <= this.topPos + 125;
+        return mx >= this.leftPos + GRID_X
+            && mx <= this.leftPos + GRID_X + GRID_COLS * SLOT_SIZE
+            && my >= this.topPos + GRID_Y
+            && my <= this.topPos + GRID_Y + GRID_ROWS * SLOT_SIZE;
     }
 
     private boolean isOnScrollbar(double mx, double my) {
-        return mx >= this.leftPos + SCROLLBAR_X && mx <= this.leftPos + SCROLLBAR_X + SCROLLBAR_W
-            && my >= this.topPos + SCROLLBAR_Y && my <= this.topPos + SCROLLBAR_Y + SCROLLBAR_H;
+        return mx >= this.leftPos + SCROLLBAR_X
+            && mx <= this.leftPos + SCROLLBAR_X + SCROLLBAR_W
+            && my >= this.topPos + SCROLLBAR_Y
+            && my <= this.topPos + SCROLLBAR_Y + SCROLLBAR_H;
     }
 
     private int maxScrollOffset() {
@@ -203,13 +277,15 @@ public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu
         List<Integer> visible = new ArrayList<>();
         List<Integer> empties = new ArrayList<>();
         String q = searchText.trim().toLowerCase();
+        boolean filterActive = filterMode != FilterMode.NONE;
 
         for (int i = 0; i < total; i++) {
             ItemStack stack = menu.slots.get(i).getItem();
             if (stack.isEmpty()) {
-                if (q.isEmpty()) empties.add(i);
+                if (q.isEmpty() && !filterActive) empties.add(i);
                 continue;
             }
+            if (filterActive && !filterMode.accepts(stack)) continue;
             if (!q.isEmpty() && !stack.getHoverName().getString().toLowerCase().contains(q)) continue;
             visible.add(i);
         }
@@ -230,8 +306,8 @@ public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu
             if (vIdx >= orderedIndices.length) break;
             int aggIdx = orderedIndices[vIdx];
             Slot s = menu.slots.get(aggIdx);
-            s.x = 8 + (d % GRID_COLS) * 18;
-            s.y = 18 + (d / GRID_COLS) * 18;
+            s.x = GRID_X + (d % GRID_COLS) * SLOT_SIZE;
+            s.y = GRID_Y + (d / GRID_COLS) * SLOT_SIZE;
         }
     }
 
@@ -255,40 +331,106 @@ public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu
 
     @Override
     protected void renderBg(@NotNull GuiGraphics gfx, float partialTick, int mouseX, int mouseY) {
-        gfx.blit(RenderPipelines.GUI_TEXTURED, BG,
-            this.leftPos, this.topPos, 0f, 0f,
-            this.imageWidth, this.imageHeight, 256, 256);
+        int x0 = this.leftPos;
+        int y0 = this.topPos;
+        int x1 = x0 + GUI_W;
+        int y1 = y0 + GUI_H;
 
-        // Paint over slot holes that have no aggregated slot in this view —
-        // generic_54.png draws 9×6 holes statically, but our active grid may be smaller.
+        // Main dark matte glass panel
+        gfx.fill(x0, y0, x1, y1, PANEL_BG);
+        drawBorder(gfx, x0, y0, x1, y1, PANEL_BORDER);
+
+        // Search bar background + border
+        int sx0 = x0 + SEARCH_X, sy0 = y0 + SEARCH_Y;
+        int sx1 = sx0 + SEARCH_W, sy1 = sy0 + SEARCH_H;
+        gfx.fill(sx0, sy0, sx1, sy1, INNER_PANEL);
+        drawBorder(gfx, sx0, sy0, sx1, sy1, SLOT_BORDER);
+
+        // Storage grid slot backgrounds
+        for (int r = 0; r < GRID_ROWS; r++) {
+            for (int c = 0; c < GRID_COLS; c++) {
+                int sx = x0 + GRID_X + c * SLOT_SIZE;
+                int sy = y0 + GRID_Y + r * SLOT_SIZE;
+                drawSlotBg(gfx, sx, sy);
+            }
+        }
+
+        // Mark empty grid cells beyond orderedIndices (filtered view smaller than 72)
         int start = this.scrollOffset * GRID_COLS;
         for (int d = 0; d < GRID_SIZE; d++) {
             int vIdx = start + d;
             if (vIdx < orderedIndices.length) continue;
-            int col = d % GRID_COLS;
-            int row = d / GRID_COLS;
-            int x = this.leftPos + 7 + col * 18;
-            int y = this.topPos + 17 + row * 18;
-            gfx.fill(x, y, x + 18, y + 18, 0xFFC6C6C6);
+            int sx = x0 + GRID_X + (d % GRID_COLS) * SLOT_SIZE;
+            int sy = y0 + GRID_Y + (d / GRID_COLS) * SLOT_SIZE;
+            gfx.fill(sx + 1, sy + 1, sx + SLOT_SIZE - 1, sy + SLOT_SIZE - 1, 0x401A1A28);
         }
 
+        // Player inventory slot backgrounds (3 rows + hotbar)
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 9; c++) {
+                int sx = x0 + MagicStorageMenu.PLAYER_INV_X + c * SLOT_SIZE;
+                int sy = y0 + MagicStorageMenu.PLAYER_INV_Y + r * SLOT_SIZE;
+                drawSlotBg(gfx, sx, sy);
+            }
+        }
+        for (int c = 0; c < 9; c++) {
+            int sx = x0 + MagicStorageMenu.PLAYER_INV_X + c * SLOT_SIZE;
+            int sy = y0 + MagicStorageMenu.HOTBAR_Y;
+            drawSlotBg(gfx, sx, sy);
+        }
+
+        // Scrollbar track + thumb
+        int trackX = x0 + SCROLLBAR_X;
+        int trackY = y0 + SCROLLBAR_Y;
+        gfx.fill(trackX, trackY, trackX + SCROLLBAR_W, trackY + SCROLLBAR_H, INNER_PANEL);
+        drawBorder(gfx, trackX, trackY, trackX + SCROLLBAR_W, trackY + SCROLLBAR_H, SLOT_BORDER);
+
         int max = maxScrollOffset();
-        int trackTop = this.topPos + SCROLLBAR_Y;
-        int trackX = this.leftPos + SCROLLBAR_X;
-        gfx.fill(trackX, trackTop, trackX + SCROLLBAR_W, trackTop + SCROLLBAR_H, 0xFF2A2A2A);
         if (max > 0) {
             int totalRows = (orderedIndices.length + GRID_COLS - 1) / GRID_COLS;
             int thumbH = Math.max(12, SCROLLBAR_H * GRID_ROWS / Math.max(1, totalRows));
-            int thumbY = trackTop + (SCROLLBAR_H - thumbH) * scrollOffset / max;
-            gfx.fill(trackX, thumbY, trackX + SCROLLBAR_W, thumbY + thumbH, 0xFFAAAAAA);
-            gfx.fill(trackX, thumbY, trackX + SCROLLBAR_W - 1, thumbY + 1, 0xFFFFFFFF);
+            int thumbY = trackY + (SCROLLBAR_H - thumbH) * scrollOffset / max;
+            gfx.fill(trackX + 1, thumbY, trackX + SCROLLBAR_W - 1, thumbY + thumbH, SCROLLBAR_THUMB);
+            gfx.fill(trackX + 1, thumbY, trackX + SCROLLBAR_W - 1, thumbY + 1, SCROLLBAR_THUMB_HL);
         }
+    }
+
+    private static void drawSlotBg(GuiGraphics gfx, int x, int y) {
+        gfx.fill(x, y, x + SLOT_SIZE, y + SLOT_SIZE, SLOT_BG);
+        drawBorder(gfx, x, y, x + SLOT_SIZE, y + SLOT_SIZE, SLOT_BORDER);
+    }
+
+    private static void drawBorder(GuiGraphics gfx, int x0, int y0, int x1, int y1, int color) {
+        gfx.fill(x0, y0, x1, y0 + 1, color);
+        gfx.fill(x0, y1 - 1, x1, y1, color);
+        gfx.fill(x0, y0, x0 + 1, y1, color);
+        gfx.fill(x1 - 1, y0, x1, y1, color);
     }
 
     @Override
     protected void renderLabels(@NotNull GuiGraphics gfx, int mouseX, int mouseY) {
-        String indicator = menu.countUsedSlots() + " / " + menu.getAggregatedSlotCount();
-        gfx.drawString(this.font, indicator, 8, 6, LABEL_COLOR, false);
         gfx.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, LABEL_COLOR, false);
+        String indicator = menu.countUsedSlots() + " / " + menu.getAggregatedSlotCount();
+        int indicatorX = GUI_W - 8 - this.font.width(indicator);
+        gfx.drawString(this.font, indicator, indicatorX, this.inventoryLabelY, LABEL_COLOR, false);
+
+        int barX0 = this.inventoryLabelX + this.font.width(this.playerInventoryTitle) + 8;
+        int barX1 = indicatorX - 8;
+        if (barX1 > barX0 + 12) renderFillBar(gfx, barX0, this.inventoryLabelY + 1, barX1, this.inventoryLabelY + 7);
+    }
+
+    private void renderFillBar(GuiGraphics gfx, int x0, int y0, int x1, int y1) {
+        gfx.fill(x0, y0, x1, y1, FILL_BAR_BG);
+        drawBorder(gfx, x0, y0, x1, y1, SLOT_BORDER);
+        int total = menu.getAggregatedSlotCount();
+        if (total <= 0) return;
+        double ratio = (double) menu.countUsedSlots() / total;
+        if (ratio <= 0) return;
+        int fillColor = ratio <= 0.5 ? FILL_GREEN : (ratio <= 2.0 / 3.0 ? FILL_YELLOW : FILL_RED);
+        int innerW = x1 - x0 - 2;
+        int fillW = (int) Math.round(innerW * Math.min(1.0, ratio));
+        if (fillW > 0) {
+            gfx.fill(x0 + 1, y0 + 1, x0 + 1 + fillW, y1 - 1, fillColor);
+        }
     }
 }

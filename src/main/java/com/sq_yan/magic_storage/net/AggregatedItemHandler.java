@@ -1,6 +1,7 @@
 package com.sq_yan.magic_storage.net;
 
 import com.sq_yan.magic_storage.blockentity.StorageCellBlockEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
@@ -24,6 +25,12 @@ public final class AggregatedItemHandler implements IItemHandlerModifiable {
 
     public int cellCount() {
         return cells.size();
+    }
+
+    public List<BlockPos> cellPositions() {
+        List<BlockPos> out = new ArrayList<>(cells.size());
+        for (StorageCellBlockEntity cell : cells) out.add(cell.getBlockPos().immutable());
+        return out;
     }
 
     @Override
@@ -70,7 +77,9 @@ public final class AggregatedItemHandler implements IItemHandlerModifiable {
     private @Nullable ItemStackHandler handlerFor(int slot) {
         int cellIdx = slot / StorageCellBlockEntity.SIZE;
         if (cellIdx < 0 || cellIdx >= cells.size()) return null;
-        return cells.get(cellIdx).getItems();
+        StorageCellBlockEntity cell = cells.get(cellIdx);
+        if (cell.isRemoved()) return null;
+        return cell.getItems();
     }
 
     private static int localSlot(int slot) {
