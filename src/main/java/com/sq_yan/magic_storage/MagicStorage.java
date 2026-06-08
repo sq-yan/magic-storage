@@ -1,6 +1,7 @@
 package com.sq_yan.magic_storage;
 
 import com.mojang.logging.LogUtils;
+import com.sq_yan.magic_storage.net.MSNetwork;
 import com.sq_yan.magic_storage.registry.MSBlockEntities;
 import com.sq_yan.magic_storage.registry.MSBlocks;
 import com.sq_yan.magic_storage.registry.MSCreativeTabs;
@@ -23,6 +24,8 @@ public final class MagicStorage {
         MSBlockEntities.REGISTRY.register(bus);
         MSMenus.REGISTRY.register(bus);
         MSCreativeTabs.REGISTRY.register(bus);
+
+        MSNetwork.init();
 
         LOGGER.info("[magic_storage] mod constructed");
     }

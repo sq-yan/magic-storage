@@ -16,7 +16,8 @@ public final class MSBlockEntities {
 
     public static final RegistryObject<BlockEntityType<HeartStorageBlockEntity>> HEART_STORAGE =
         REGISTRY.register("heart_storage", () ->
-            new BlockEntityType<>(HeartStorageBlockEntity::new, Set.of(MSBlocks.HEART_STORAGE.get())));
+            new BlockEntityType<>(HeartStorageBlockEntity::new,
+                Set.of(MSBlocks.HEART_STORAGE.get(), MSBlocks.HEART_STORAGE_T2.get())));
 
     public static final RegistryObject<BlockEntityType<StorageCellBlockEntity>> STORAGE_CELL =
         REGISTRY.register("storage_cell", () ->

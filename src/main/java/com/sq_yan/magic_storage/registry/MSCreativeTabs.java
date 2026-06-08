@@ -18,6 +18,7 @@ public final class MSCreativeTabs {
             .icon(() -> new ItemStack(MSItems.HEART_STORAGE.get()))
             .displayItems((params, output) -> {
                 output.accept(MSItems.HEART_STORAGE.get());
+                output.accept(MSItems.HEART_STORAGE_T2.get());
                 output.accept(MSItems.STORAGE_CELL.get());
             })
             .build());

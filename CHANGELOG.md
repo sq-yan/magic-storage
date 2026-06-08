@@ -2,6 +2,31 @@
 
 All notable changes for this mod. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.3.0] — 2026-06-08
+
+### Added
+- **Tier 2 Heart Storage II** — new multi-block 1×2 vertical artifact (DoublePlantBlock pattern). Connects up to **16 cells** (432 slots). Custom textures: lower half with a heart glyph + rune ring, upper half as a crown with a purple crystal and dedication. Lower drops the item, upper visual-only.
+- **Tier 2 textures (Gemini-generated)** — copper-gold framed obsidian panels, seamless mid-seam between halves. Block model uses placeholder T1 textures for active fill levels (green/yellow/red) — those will follow in a later patch.
+- **Global Quick Dump from world** — press the same hotkey (`X` default) **outside** the GUI within 5 blocks of any Heart to dump the player's main inventory directly. Silent no-op if no heart is within range. Built on a new `SimpleChannel` + `GlobalDumpPacket` round-trip.
+- **26-neighbor cell connectivity** — cells now connect through faces, edges and corners (previously faces only). Networks can grow as 3D clouds.
+- **Heart overflow message** — when more cells are reachable than the heart can hold (T1=4, T2=16), the nearest player gets a one-shot action-bar message: «Heart connects up to N cells — extras are ignored».
+
+### Fixed
+- **🔴 Cell content "disappearing" after network growth** — when more cells became reachable, BFS would replace the connected set instead of preserving it, so previously-connected cells with items appeared empty in the menu. Fixed via stateful `Set<BlockPos> connected` on the Heart BE (persisted in NBT). Connected cells are never evicted while they remain reachable.
+- **🔴 Client disconnect on opening the Heart menu** — the client built `AggregatedItemHandler` from an empty connected set (server-only state) and crashed on the first slot-content packet (`IndexOutOfBoundsException`). Fixed by sending the connected positions through the `Consumer<FriendlyByteBuf>` passed to `openMenu`, then resolving them client-side via `AggregatedItemHandler.fromPositions(level, positions)`.
+- **Search box Esc behavior** — pressing Esc now clears the query and unfocuses the box (Screen-level defocus too), matching vanilla creative inventory.
+- **Quick Dump hotkey ignored inside open GUI** — the hotkey check now runs above the search-box input consumption.
+
+### Changed
+- **Tier 1 Heart Storage capacity 128 → 4 cells** (108 slots). Creates a meaningful reason to upgrade to Tier 2.
+- **`HeartStorageBlock` refactored to an abstract base class** with `HeartStorageT1Block` (4 cells) and `HeartStorageT2Block` (16 cells). One `BlockEntityType` registered for both blocks. Tier capacity comes from the block via `getMaxCells()`.
+- `CellNetwork.collect` → `CellNetwork.collectReachable` — returns all reachable cells without an artificial cap, the Heart applies its own per-tier limit.
+- `MagicStorageMenu.distributeIntoStorage` and `quickDump` moved into `AggregatedItemHandler.distribute(stack)` and `dumpPlayerInventoryMain(player)` for reuse from the global Quick Dump path.
+
+### Internal / known
+- Built against Minecraft **1.21.11**, Forge **61.1.0**, Java **21**.
+- T2 lower fill-level textures (green/yellow/red) still reuse T1 textures as placeholders — a Gemini regen run for the matching glow variations is queued.
+
 ## [0.2.0] — 2026-06-05
 
 ### Added

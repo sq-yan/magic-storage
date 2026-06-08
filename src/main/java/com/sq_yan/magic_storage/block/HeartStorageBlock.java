@@ -2,7 +2,6 @@ package com.sq_yan.magic_storage.block;
 
 import com.mojang.serialization.MapCodec;
 import com.sq_yan.magic_storage.blockentity.HeartStorageBlockEntity;
-import com.sq_yan.magic_storage.net.CellNetwork;
 import com.sq_yan.magic_storage.registry.MSBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -23,15 +22,16 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class HeartStorageBlock extends BaseEntityBlock {
-    public static final MapCodec<HeartStorageBlock> CODEC = simpleCodec(HeartStorageBlock::new);
-
+public abstract class HeartStorageBlock extends BaseEntityBlock {
     public static final IntegerProperty FILL_LEVEL = IntegerProperty.create("fill_level", 0, 3);
 
-    public HeartStorageBlock(Properties properties) {
+    protected HeartStorageBlock(Properties properties) {
         super(properties);
         registerDefaultState(getStateDefinition().any().setValue(FILL_LEVEL, 0));
     }
+
+    /** Max Storage Cells this heart can connect to. */
+    public abstract int getMaxCells();
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
@@ -39,9 +39,7 @@ public class HeartStorageBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull MapCodec<HeartStorageBlock> codec() {
-        return CODEC;
-    }
+    protected abstract @NotNull MapCodec<? extends HeartStorageBlock> codec();
 
     @Override
     public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
@@ -72,11 +70,17 @@ public class HeartStorageBlock extends BaseEntityBlock {
         if (!(player instanceof ServerPlayer sp)) return InteractionResult.CONSUME;
         if (!(level.getBlockEntity(pos) instanceof HeartStorageBlockEntity heart)) return InteractionResult.CONSUME;
 
-        if (CellNetwork.collect(heart).isEmpty()) {
+        heart.refreshConnections();
+        var positions = heart.getConnectedCellPositions();
+        if (positions.isEmpty()) {
             sp.sendSystemMessage(Component.translatable("message.magic_storage.no_cells"));
             return InteractionResult.CONSUME;
         }
-        sp.openMenu(heart, pos);
+        sp.openMenu(heart, buf -> {
+            buf.writeBlockPos(pos);
+            buf.writeVarInt(positions.size());
+            for (BlockPos p : positions) buf.writeBlockPos(p);
+        });
         return InteractionResult.CONSUME;
     }
 }

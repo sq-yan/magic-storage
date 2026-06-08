@@ -1,10 +1,13 @@
 {
   "itemGroup.magic_storage": "Magic Storage",
   "block.magic_storage.heart_storage": "Heart Storage",
+  "block.magic_storage.heart_storage_t2": "Heart Storage II",
   "block.magic_storage.storage_cell": "Storage Cell",
   "item.magic_storage.heart_storage": "Heart Storage",
+  "item.magic_storage.heart_storage_t2": "Heart Storage II",
   "item.magic_storage.storage_cell": "Storage Cell",
   "message.magic_storage.no_cells": "Connect at least one Storage Cell first",
+  "message.magic_storage.heart_full": "Heart connects up to %s cells — extras are ignored",
   "gui.magic_storage.search": "Search",
   "gui.magic_storage.sort.none": "Sort: original order",
   "gui.magic_storage.sort.name": "Sort: by name",

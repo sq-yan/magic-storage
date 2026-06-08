@@ -112,7 +112,6 @@ public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu
         addFilterButton(4, FilterMode.FOOD, new ItemStack(Items.BREAD));
         addFilterButton(5, FilterMode.BLOCKS, new ItemStack(Items.COBBLESTONE));
 
-        this.setInitialFocus(this.searchBox);
         rebuildLayout();
     }
 
@@ -181,17 +180,19 @@ public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu
 
     @Override
     public boolean keyPressed(@NotNull KeyEvent event) {
+        if (MagicStorageClient.QUICK_DUMP.matches(event)) {
+            triggerQuickDump();
+            return true;
+        }
         if (this.searchBox != null && this.searchBox.isFocused()) {
             if (event.key() == GLFW_KEY_ESCAPE) {
+                this.searchBox.setValue("");
                 this.searchBox.setFocused(false);
+                this.setFocused(null);
                 return true;
             }
             if (this.searchBox.keyPressed(event)) return true;
             if (this.searchBox.canConsumeInput()) return true;
-        }
-        if (MagicStorageClient.QUICK_DUMP.matches(event)) {
-            triggerQuickDump();
-            return true;
         }
         return super.keyPressed(event);
     }

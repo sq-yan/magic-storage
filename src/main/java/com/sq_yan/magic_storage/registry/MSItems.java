@@ -15,6 +15,11 @@ public final class MSItems {
             new Item.Properties().setId(REGISTRY.key("heart_storage")))
     );
 
+    public static final RegistryObject<Item> HEART_STORAGE_T2 = REGISTRY.register("heart_storage_t2",
+        () -> new BlockItem(MSBlocks.HEART_STORAGE_T2.get(),
+            new Item.Properties().setId(REGISTRY.key("heart_storage_t2")))
+    );
+
     public static final RegistryObject<Item> STORAGE_CELL = REGISTRY.register("storage_cell",
         () -> new BlockItem(MSBlocks.STORAGE_CELL.get(),
             new Item.Properties().setId(REGISTRY.key("storage_cell")))
