@@ -20,7 +20,11 @@ public class DarkSquareButton extends AbstractButton {
     private final Runnable onClick;
 
     public DarkSquareButton(int x, int y, int size, Component glyph, Component tooltip, Runnable onClick) {
-        super(x, y, size, size, tooltip);
+        this(x, y, size, size, glyph, tooltip, onClick);
+    }
+
+    public DarkSquareButton(int x, int y, int width, int height, Component glyph, Component tooltip, Runnable onClick) {
+        super(x, y, width, height, tooltip);
         this.glyph = glyph;
         this.onClick = onClick;
         this.setTooltip(Tooltip.create(tooltip));

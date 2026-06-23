@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public final class AggregatedItemHandler implements IItemHandlerModifiable {
     private final List<StorageCellBlockEntity> cells;
@@ -121,13 +122,16 @@ public final class AggregatedItemHandler implements IItemHandlerModifiable {
     }
 
     /**
-     * Pulls main player inventory (slots 9..35, no hotbar) into storage.
-     * Returns true if at least one item moved.
+     * Pulls player inventory into storage, skipping slots in {@code protectedSlots}.
+     * The hotbar (0..8) is included only when the player disabled hotbar protection;
+     * otherwise dumping starts at slot 9 as before. Returns true if at least one item moved.
      */
-    public boolean dumpPlayerInventoryMain(Player player) {
+    public boolean dumpPlayerInventoryMain(Player player, Set<Integer> protectedSlots) {
         var inv = player.getInventory();
         boolean any = false;
-        for (int i = 9; i < 36; i++) {
+        int start = com.sq_yan.magic_storage.protect.ProtectedSlots.isHotbarProtected(player) ? 9 : 0;
+        for (int i = start; i < 36; i++) {
+            if (protectedSlots.contains(i)) continue;
             ItemStack s = inv.getItem(i);
             if (s.isEmpty()) continue;
             int before = s.getCount();

@@ -1,6 +1,7 @@
 package com.sq_yan.magic_storage.registry;
 
 import com.sq_yan.magic_storage.MagicStorage;
+import com.sq_yan.magic_storage.book.LoreBooks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -18,8 +19,14 @@ public final class MSCreativeTabs {
             .icon(() -> new ItemStack(MSItems.HEART_STORAGE.get()))
             .displayItems((params, output) -> {
                 output.accept(MSItems.HEART_STORAGE.get());
-                output.accept(MSItems.HEART_STORAGE_T2.get());
+                output.accept(MSItems.CRYSTAL_EXPANDER.get());
                 output.accept(MSItems.STORAGE_CELL.get());
+                output.accept(MSItems.MAGIC_HEART.get());
+                output.accept(MSItems.MAGIC_CRYSTAL.get());
+                output.accept(MSItems.REIGALLS_TUNING_FORK.get());
+                output.accept(LoreBooks.book1());
+                output.accept(LoreBooks.book2());
+                output.accept(LoreBooks.book3());
             })
             .build());
 

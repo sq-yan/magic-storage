@@ -24,6 +24,27 @@ public final class MSNetwork {
             .consumerMainThread(GlobalDumpPacket::handle)
             .add();
 
+        CHANNEL.messageBuilder(UpdateProtectedSlotsPacket.class, 1)
+            .direction(PacketFlow.SERVERBOUND)
+            .encoder(UpdateProtectedSlotsPacket::encode)
+            .decoder(UpdateProtectedSlotsPacket::decode)
+            .consumerMainThread(UpdateProtectedSlotsPacket::handle)
+            .add();
+
+        CHANNEL.messageBuilder(ProtectedSlotsSyncPacket.class, 2)
+            .direction(PacketFlow.CLIENTBOUND)
+            .encoder(ProtectedSlotsSyncPacket::encode)
+            .decoder(ProtectedSlotsSyncPacket::decode)
+            .consumerMainThread(ProtectedSlotsSyncPacket::handle)
+            .add();
+
+        CHANNEL.messageBuilder(SetHotbarProtectionPacket.class, 3)
+            .direction(PacketFlow.SERVERBOUND)
+            .encoder(SetHotbarProtectionPacket::encode)
+            .decoder(SetHotbarProtectionPacket::decode)
+            .consumerMainThread(SetHotbarProtectionPacket::handle)
+            .add();
+
         CHANNEL.build();
     }
 }

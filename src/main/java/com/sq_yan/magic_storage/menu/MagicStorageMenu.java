@@ -1,6 +1,5 @@
 package com.sq_yan.magic_storage.menu;
 
-import com.mojang.logging.LogUtils;
 import com.sq_yan.magic_storage.blockentity.HeartStorageBlockEntity;
 import com.sq_yan.magic_storage.blockentity.StorageCellBlockEntity;
 import com.sq_yan.magic_storage.net.AggregatedItemHandler;
@@ -18,12 +17,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 import java.util.List;
 
 public class MagicStorageMenu extends AbstractContainerMenu {
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final int GRID_COLS = 12;
     public static final int GRID_ROWS = 6;
@@ -81,15 +78,6 @@ public class MagicStorageMenu extends AbstractContainerMenu {
         for (int col = 0; col < 9; col++) {
             addSlot(new Slot(inv, col, PLAYER_INV_X + col * 18, HOTBAR_Y));
         }
-
-        boolean isServer = heart != null && heart.getLevel() != null && !heart.getLevel().isClientSide();
-        if (isServer) {
-            LOGGER.info("[magic_storage] menu opened (server): cells={}, slots={}",
-                aggregated.cellCount(), aggregatedSlotCount);
-        } else {
-            LOGGER.info("[magic_storage] menu opened (client): heart={}, slots={}",
-                heart == null ? "null" : "found", aggregatedSlotCount);
-        }
     }
 
     public int getAggregatedSlotCount() {
@@ -104,13 +92,14 @@ public class MagicStorageMenu extends AbstractContainerMenu {
         return used;
     }
 
-    private void rebuildNetworkIfNeeded() {
+    // openMenu = единственная точка истины для slot count.
+    // Здесь только освежаем BE-ссылки в aggregated handler на случай unload/reload chunk —
+    // если число подключённых cells поменялось, игрок должен переоткрыть GUI.
+    private void refreshCellReferencesIfStable() {
         if (heart == null || heart.getLevel() == null || heart.getLevel().isClientSide()) return;
         if (heart.isRemoved()) return;
         List<StorageCellBlockEntity> fresh = heart.getConnectedCells();
         if (fresh.size() * StorageCellBlockEntity.SIZE != aggregatedSlotCount) {
-            LOGGER.warn("[magic_storage] cell count changed since menu opened: was={}, now={}. Slots will not resize until reopen.",
-                aggregated.cellCount(), fresh.size());
             return;
         }
         aggregated.rebuild(fresh);
@@ -120,7 +109,7 @@ public class MagicStorageMenu extends AbstractContainerMenu {
     public void broadcastChanges() {
         if (++rebuildCounter >= REBUILD_INTERVAL_TICKS) {
             rebuildCounter = 0;
-            rebuildNetworkIfNeeded();
+            refreshCellReferencesIfStable();
         }
         super.broadcastChanges();
     }
@@ -149,7 +138,10 @@ public class MagicStorageMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(@NotNull Player player, int id) {
         if (id == BUTTON_QUICK_DUMP) {
-            if (!player.level().isClientSide()) aggregated.dumpPlayerInventoryMain(player);
+            if (!player.level().isClientSide()) {
+                var protectedSlots = com.sq_yan.magic_storage.protect.ProtectedSlots.cleanEmpty(player);
+                aggregated.dumpPlayerInventoryMain(player, protectedSlots);
+            }
             return true;
         }
         return super.clickMenuButton(player, id);
@@ -163,7 +155,6 @@ public class MagicStorageMenu extends AbstractContainerMenu {
         if (level.isClientSide()) return true;
         for (BlockPos pos : initialCellPositions) {
             if (!(level.getBlockEntity(pos) instanceof StorageCellBlockEntity cell) || cell.isRemoved()) {
-                LOGGER.info("[magic_storage] menu closing — cell at {} no longer present", pos);
                 return false;
             }
         }

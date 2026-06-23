@@ -1,10 +1,12 @@
 package com.sq_yan.magic_storage.net;
 
+import com.sq_yan.magic_storage.block.CrystalExpanderBlock;
 import com.sq_yan.magic_storage.blockentity.HeartStorageBlockEntity;
 import com.sq_yan.magic_storage.blockentity.StorageCellBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -16,17 +18,23 @@ public final class CellNetwork {
 
     private CellNetwork() {}
 
+    public record NetworkResult(List<StorageCellBlockEntity> cells, List<BlockPos> activeExpanders) {
+        public static final NetworkResult EMPTY = new NetworkResult(List.of(), List.of());
+    }
+
     /**
-     * BFS all reachable Storage Cells from the heart through 26-neighbor connectivity
-     * (faces + edges + corners). Order is breadth-first: cells closer to the heart
-     * appear first. Callers apply their own connection cap.
+     * BFS the heart's network through 26-neighbor connectivity. Walks through both
+     * Storage Cells and Crystal Expanders with a crystal inserted — empty expanders
+     * are not part of the network. Cells and active expanders are returned separately;
+     * callers cap cells with their own connection limit.
      */
-    public static List<StorageCellBlockEntity> collectReachable(HeartStorageBlockEntity heart) {
+    public static NetworkResult collect(HeartStorageBlockEntity heart) {
         Level level = heart.getLevel();
-        if (level == null) return List.of();
+        if (level == null) return NetworkResult.EMPTY;
 
         BlockPos start = heart.getBlockPos();
-        List<StorageCellBlockEntity> result = new ArrayList<>();
+        List<StorageCellBlockEntity> cells = new ArrayList<>();
+        List<BlockPos> expanders = new ArrayList<>();
         HashSet<BlockPos> visited = new HashSet<>();
         ArrayDeque<BlockPos> queue = new ArrayDeque<>();
         visited.add(start);
@@ -35,16 +43,31 @@ public final class CellNetwork {
         while (!queue.isEmpty()) {
             BlockPos p = queue.poll();
             if (!visited.add(p)) continue;
+
             BlockEntity be = level.getBlockEntity(p);
             if (be instanceof StorageCellBlockEntity cell) {
-                result.add(cell);
-                for (int[] o : NEIGHBOR_OFFSETS) {
-                    BlockPos n = p.offset(o[0], o[1], o[2]);
-                    if (!visited.contains(n)) queue.add(n);
-                }
+                cells.add(cell);
+                enqueueNeighbors(queue, visited, p);
+                continue;
+            }
+
+            BlockState s = level.getBlockState(p);
+            if (s.getBlock() instanceof CrystalExpanderBlock
+                && s.hasProperty(CrystalExpanderBlock.HAS_CRYSTAL)
+                && s.getValue(CrystalExpanderBlock.HAS_CRYSTAL)
+                && p.distManhattan(start) == 1) {
+                expanders.add(p.immutable());
+                enqueueNeighbors(queue, visited, p);
             }
         }
-        return result;
+        return new NetworkResult(cells, expanders);
+    }
+
+    private static void enqueueNeighbors(ArrayDeque<BlockPos> queue, HashSet<BlockPos> visited, BlockPos from) {
+        for (int[] o : NEIGHBOR_OFFSETS) {
+            BlockPos n = from.offset(o[0], o[1], o[2]);
+            if (!visited.contains(n)) queue.add(n);
+        }
     }
 
     private static int[][] buildNeighborOffsets() {

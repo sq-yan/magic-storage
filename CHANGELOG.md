@@ -2,6 +2,38 @@
 
 All notable changes for this mod. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.0] — 2026-06-23 — first public release
+
+First public release. Everything below is what ships to players today; versions
+0.1–0.4 are private development builds kept for history.
+
+### Storage
+- **Heart Storage** altar links nearby **Storage Cells** into one searchable,
+  sortable inventory. Awaken it by inserting a **Magic Heart**.
+- **Crystal Expanders** snap to the altar's faces to grow capacity (+4 cells
+  each, up to 6 face-adjacent).
+- **Reigall's Tuning Fork** re-tunes the network, compacting contents into the
+  fewest cells.
+
+### Interface
+- Search, sort (name / count / mod), category filters, search autocomplete,
+  scrolling grid, used/total fill bar.
+- **Quick Dump** hotkey + **per-slot protection** with a **hotbar-protection
+  toggle**. Both hotkeys rebindable in-GUI and in vanilla Controls.
+- **Live fill indicators** — cells and the altar glow green → yellow → red.
+
+### Progression & lore
+- **Liber Reigallus** books handed out at milestones (lore + recipes).
+- Recipes also appear in the vanilla recipe book.
+- **Villager trades** — Magic Heart and Magic Crystal sold by librarians.
+
+### Changed since dev builds
+- Removed the experimental Tier-2 Heart; progression now runs through Crystal
+  Expanders and future tier crystals.
+
+### Requires
+- Minecraft **1.21.11**, Forge **61+**. Licensed **MIT**.
+
 ## [0.3.0] — 2026-06-08
 
 ### Added

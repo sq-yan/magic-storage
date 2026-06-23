@@ -1,12 +1,15 @@
 package com.sq_yan.magic_storage;
 
 import com.mojang.logging.LogUtils;
+import com.sq_yan.magic_storage.book.LoreBookEvents;
 import com.sq_yan.magic_storage.net.MSNetwork;
 import com.sq_yan.magic_storage.registry.MSBlockEntities;
 import com.sq_yan.magic_storage.registry.MSBlocks;
 import com.sq_yan.magic_storage.registry.MSCreativeTabs;
 import com.sq_yan.magic_storage.registry.MSItems;
 import com.sq_yan.magic_storage.registry.MSMenus;
+import com.sq_yan.magic_storage.protect.ProtectedSlotsServerSync;
+import com.sq_yan.magic_storage.trade.VillagerTradeRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
@@ -26,6 +29,9 @@ public final class MagicStorage {
         MSCreativeTabs.REGISTRY.register(bus);
 
         MSNetwork.init();
+        VillagerTradeRegistry.register();
+        ProtectedSlotsServerSync.register();
+        LoreBookEvents.register();
 
         LOGGER.info("[magic_storage] mod constructed");
     }

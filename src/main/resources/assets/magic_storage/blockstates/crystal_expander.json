@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,has_crystal=false": { "model": "magic_storage:block/crystal_expander_empty" },
+    "facing=east,has_crystal=false":  { "model": "magic_storage:block/crystal_expander_empty", "y": 90 },
+    "facing=south,has_crystal=false": { "model": "magic_storage:block/crystal_expander_empty", "y": 180 },
+    "facing=west,has_crystal=false":  { "model": "magic_storage:block/crystal_expander_empty", "y": 270 },
+    "facing=north,has_crystal=true":  { "model": "magic_storage:block/crystal_expander" },
+    "facing=east,has_crystal=true":   { "model": "magic_storage:block/crystal_expander", "y": 90 },
+    "facing=south,has_crystal=true":  { "model": "magic_storage:block/crystal_expander", "y": 180 },
+    "facing=west,has_crystal=true":   { "model": "magic_storage:block/crystal_expander", "y": 270 }
+  }
+}

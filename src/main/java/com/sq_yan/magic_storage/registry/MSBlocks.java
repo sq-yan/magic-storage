@@ -1,8 +1,8 @@
 package com.sq_yan.magic_storage.registry;
 
 import com.sq_yan.magic_storage.MagicStorage;
+import com.sq_yan.magic_storage.block.CrystalExpanderBlock;
 import com.sq_yan.magic_storage.block.HeartStorageT1Block;
-import com.sq_yan.magic_storage.block.HeartStorageT2Block;
 import com.sq_yan.magic_storage.block.StorageCellBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -19,17 +19,17 @@ public final class MSBlocks {
         () -> new HeartStorageT1Block(BlockBehaviour.Properties.of()
             .setId(REGISTRY.key("heart_storage"))
             .mapColor(MapColor.COLOR_PURPLE)
-            .strength(5.0f, 6.0f)
+            .strength(3.0f, 4.0f)
             .sound(SoundType.METAL)
             .requiresCorrectToolForDrops()
         )
     );
 
-    public static final RegistryObject<HeartStorageT2Block> HEART_STORAGE_T2 = REGISTRY.register("heart_storage_t2",
-        () -> new HeartStorageT2Block(BlockBehaviour.Properties.of()
-            .setId(REGISTRY.key("heart_storage_t2"))
+    public static final RegistryObject<CrystalExpanderBlock> CRYSTAL_EXPANDER = REGISTRY.register("crystal_expander",
+        () -> new CrystalExpanderBlock(BlockBehaviour.Properties.of()
+            .setId(REGISTRY.key("crystal_expander"))
             .mapColor(MapColor.COLOR_PURPLE)
-            .strength(6.0f, 8.0f)
+            .strength(2.5f, 3.0f)
             .sound(SoundType.METAL)
             .requiresCorrectToolForDrops()
         )

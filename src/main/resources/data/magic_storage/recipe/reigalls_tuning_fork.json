@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "G G",
+    "GAG",
+    " E "
+  ],
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "A": "minecraft:amethyst_shard",
+    "E": "minecraft:echo_shard"
+  },
+  "result": {
+    "id": "magic_storage:reigalls_tuning_fork",
+    "count": 1
+  }
+}

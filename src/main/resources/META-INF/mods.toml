@@ -1,14 +1,16 @@
 modLoader="javafml"
 loaderVersion="[61,)"
-license="All Rights Reserved"
+license="MIT"
 
 [[mods]]
 modId="magic_storage"
-version="0.1.0"
+version="${version}"
 displayName="Magic Storage"
 authors="sq_yan"
-description='''Прототип хранилища в стиле Magic Storage из tModLoader.
-Heart Storage + Storage Cells, BFS-сеть по 6 граням, GUI с сортировкой и поиском.'''
+logoFile="icon.png"
+displayURL="https://github.com/sq-yan/magic-storage"
+issueTrackerURL="https://github.com/sq-yan/magic-storage/issues"
+description='''A mass-storage network for Minecraft. One Heart altar links Storage Cells into a single searchable, sortable inventory — expand it with Crystal Expanders, quick-dump your gear with a hotkey, protect slots, and follow the lore of the archmage Reigall.'''
 
 [[dependencies.magic_storage]]
     modId="forge"

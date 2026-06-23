@@ -1,6 +1,6 @@
 package com.sq_yan.magic_storage.blockentity;
 
-import com.mojang.logging.LogUtils;
+import com.sq_yan.magic_storage.block.StorageCellBlock;
 import com.sq_yan.magic_storage.registry.MSBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,10 +22,8 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 public class StorageCellBlockEntity extends BlockEntity {
-    private static final Logger LOGGER = LogUtils.getLogger();
     public static final int SIZE = 27;
     private static final String NBT_ITEMS = "Items";
 
@@ -36,9 +34,26 @@ public class StorageCellBlockEntity extends BlockEntity {
             if (level != null && !level.isClientSide()) {
                 BlockState st = getBlockState();
                 level.sendBlockUpdated(getBlockPos(), st, st, 3);
+                updateFillLevel();
             }
         }
     };
+
+    /** Recompute the visual fill indicator and write it to the blockstate only when it actually changes. */
+    private void updateFillLevel() {
+        if (level == null || level.isClientSide()) return;
+        BlockState st = getBlockState();
+        if (!st.hasProperty(StorageCellBlock.FILL_LEVEL)) return;
+        int used = 0;
+        for (int i = 0; i < items.getSlots(); i++) {
+            if (!items.getStackInSlot(i).isEmpty()) used++;
+        }
+        double ratio = (double) used / SIZE;
+        int target = ratio <= 0.5 ? 0 : (ratio <= 2.0 / 3.0 ? 1 : 2);
+        if (st.getValue(StorageCellBlock.FILL_LEVEL) != target) {
+            level.setBlock(getBlockPos(), st.setValue(StorageCellBlock.FILL_LEVEL, target), 3);
+        }
+    }
 
     private LazyOptional<IItemHandler> itemsCap = LazyOptional.of(() -> items);
 
@@ -76,14 +91,6 @@ public class StorageCellBlockEntity extends BlockEntity {
         itemsCap = LazyOptional.of(() -> items);
     }
 
-    private int countNonEmpty() {
-        int n = 0;
-        for (int i = 0; i < items.getSlots(); i++) {
-            if (!items.getStackInSlot(i).isEmpty()) n++;
-        }
-        return n;
-    }
-
     @Override
     public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
@@ -97,15 +104,7 @@ public class StorageCellBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(@NotNull ValueInput input) {
         super.loadAdditional(input);
-        var maybeTag = input.read(NBT_ITEMS, CompoundTag.CODEC);
-        if (maybeTag.isPresent()) {
-            items.deserializeNBT(input.lookup(), maybeTag.get());
-            if (level == null || !level.isClientSide()) {
-                LOGGER.info("[magic_storage] cell loaded @{}: {} non-empty slots", getBlockPos(), countNonEmpty());
-            }
-        } else if (level == null || !level.isClientSide()) {
-            LOGGER.info("[magic_storage] cell loaded @{}: NO Items tag in NBT (fresh place or save was empty)", getBlockPos());
-        }
+        input.read(NBT_ITEMS, CompoundTag.CODEC).ifPresent(tag -> items.deserializeNBT(input.lookup(), tag));
     }
 
     @Override
@@ -113,8 +112,6 @@ public class StorageCellBlockEntity extends BlockEntity {
         super.saveAdditional(output);
         if (level != null) {
             output.store(NBT_ITEMS, CompoundTag.CODEC, items.serializeNBT(level.registryAccess()));
-        } else {
-            LOGGER.warn("[magic_storage] cell save SKIPPED @{}: level is null", getBlockPos());
         }
     }
 }
