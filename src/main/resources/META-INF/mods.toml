@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="magic_storage"
+version="${version}"
+displayName="Magic Storage"
+authors="sq_yan"
+logoFile="icon.png"
+displayURL="https://github.com/sq-yan/magic-storage"
+issueTrackerURL="https://github.com/sq-yan/magic-storage/issues"
+description='''A mass-storage network for Minecraft. One Heart altar links Storage Cells into a single searchable, sortable inventory — expand it with Crystal Expanders, quick-dump your gear with a hotkey, protect slots, and follow the lore of the archmage Reigall.'''
+
+[[dependencies.magic_storage]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.magic_storage]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.20.2)"
+    ordering="NONE"
+    side="BOTH"

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GCG",
+    "CLC",
+    "GOG"
+  ],
+  "key": {
+    "G": { "item": "minecraft:gold_ingot" },
+    "C": { "item": "minecraft:copper_ingot" },
+    "L": { "item": "minecraft:glass" },
+    "O": { "item": "minecraft:obsidian" }
+  },
+  "result": {
+    "item": "magic_storage:crystal_expander",
+    "count": 1
+  }
+}

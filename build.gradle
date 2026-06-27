@@ -1,0 +1,79 @@
+// Magic Storage — 1.20.1 Forge backport (ForgeGradle 6).
+// Ported from the 1.21.11 / Forge 61 main line; see vault log 2026-06-27.
+
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+
+version = '1.0.0'
+group = 'com.sq_yan.magic_storage'
+base.archivesName = 'magic_storage-1.20.1'
+
+// Mojang ships Java 17 with 1.20.1, so the mod targets Java 17.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                magic_storage {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+            args '--nogui'
+            mods {
+                magic_storage {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    manifest {
+        attributes([
+            "Specification-Title"    : "magic_storage",
+            "Specification-Vendor"   : "sq_yan",
+            "Specification-Version"  : "1",
+            "Implementation-Title"   : project.name,
+            "Implementation-Version" : project.jar.archiveVersion,
+            "Implementation-Vendor"  : "sq_yan"
+        ])
+    }
+}
+
+processResources {
+    inputs.property 'version', project.version
+
+    filesMatching('META-INF/mods.toml') {
+        expand version: project.version
+    }
+}
+

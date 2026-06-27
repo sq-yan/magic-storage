@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "RRR",
+    "EDE",
+    "OOO"
+  ],
+  "key": {
+    "R": { "item": "minecraft:redstone" },
+    "E": { "item": "minecraft:emerald" },
+    "D": { "item": "minecraft:diamond" },
+    "O": { "item": "minecraft:obsidian" }
+  },
+  "result": {
+    "item": "magic_storage:heart_storage",
+    "count": 1
+  }
+}

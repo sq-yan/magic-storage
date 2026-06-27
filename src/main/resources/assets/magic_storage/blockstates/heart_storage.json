@@ -1,0 +1,40 @@
+{
+  "variants": {
+    "facing=north,has_heart=false,fill_level=0": { "model": "magic_storage:block/heart_storage_empty" },
+    "facing=east,has_heart=false,fill_level=0":  { "model": "magic_storage:block/heart_storage_empty", "y": 90 },
+    "facing=south,has_heart=false,fill_level=0": { "model": "magic_storage:block/heart_storage_empty", "y": 180 },
+    "facing=west,has_heart=false,fill_level=0":  { "model": "magic_storage:block/heart_storage_empty", "y": 270 },
+    "facing=north,has_heart=false,fill_level=1": { "model": "magic_storage:block/heart_storage_empty" },
+    "facing=east,has_heart=false,fill_level=1":  { "model": "magic_storage:block/heart_storage_empty", "y": 90 },
+    "facing=south,has_heart=false,fill_level=1": { "model": "magic_storage:block/heart_storage_empty", "y": 180 },
+    "facing=west,has_heart=false,fill_level=1":  { "model": "magic_storage:block/heart_storage_empty", "y": 270 },
+    "facing=north,has_heart=false,fill_level=2": { "model": "magic_storage:block/heart_storage_empty" },
+    "facing=east,has_heart=false,fill_level=2":  { "model": "magic_storage:block/heart_storage_empty", "y": 90 },
+    "facing=south,has_heart=false,fill_level=2": { "model": "magic_storage:block/heart_storage_empty", "y": 180 },
+    "facing=west,has_heart=false,fill_level=2":  { "model": "magic_storage:block/heart_storage_empty", "y": 270 },
+    "facing=north,has_heart=false,fill_level=3": { "model": "magic_storage:block/heart_storage_empty" },
+    "facing=east,has_heart=false,fill_level=3":  { "model": "magic_storage:block/heart_storage_empty", "y": 90 },
+    "facing=south,has_heart=false,fill_level=3": { "model": "magic_storage:block/heart_storage_empty", "y": 180 },
+    "facing=west,has_heart=false,fill_level=3":  { "model": "magic_storage:block/heart_storage_empty", "y": 270 },
+
+    "facing=north,has_heart=true,fill_level=0": { "model": "magic_storage:block/heart_storage" },
+    "facing=east,has_heart=true,fill_level=0":  { "model": "magic_storage:block/heart_storage", "y": 90 },
+    "facing=south,has_heart=true,fill_level=0": { "model": "magic_storage:block/heart_storage", "y": 180 },
+    "facing=west,has_heart=true,fill_level=0":  { "model": "magic_storage:block/heart_storage", "y": 270 },
+
+    "facing=north,has_heart=true,fill_level=1": { "model": "magic_storage:block/heart_storage_green" },
+    "facing=east,has_heart=true,fill_level=1":  { "model": "magic_storage:block/heart_storage_green", "y": 90 },
+    "facing=south,has_heart=true,fill_level=1": { "model": "magic_storage:block/heart_storage_green", "y": 180 },
+    "facing=west,has_heart=true,fill_level=1":  { "model": "magic_storage:block/heart_storage_green", "y": 270 },
+
+    "facing=north,has_heart=true,fill_level=2": { "model": "magic_storage:block/heart_storage_yellow" },
+    "facing=east,has_heart=true,fill_level=2":  { "model": "magic_storage:block/heart_storage_yellow", "y": 90 },
+    "facing=south,has_heart=true,fill_level=2": { "model": "magic_storage:block/heart_storage_yellow", "y": 180 },
+    "facing=west,has_heart=true,fill_level=2":  { "model": "magic_storage:block/heart_storage_yellow", "y": 270 },
+
+    "facing=north,has_heart=true,fill_level=3": { "model": "magic_storage:block/heart_storage_red" },
+    "facing=east,has_heart=true,fill_level=3":  { "model": "magic_storage:block/heart_storage_red", "y": 90 },
+    "facing=south,has_heart=true,fill_level=3": { "model": "magic_storage:block/heart_storage_red", "y": 180 },
+    "facing=west,has_heart=true,fill_level=3":  { "model": "magic_storage:block/heart_storage_red", "y": 270 }
+  }
+}

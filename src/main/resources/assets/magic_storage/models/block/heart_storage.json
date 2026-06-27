@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "magic_storage:block/heart_storage_side",
+    "front": "magic_storage:block/heart_storage_dormant",
+    "side": "magic_storage:block/heart_storage_side"
+  }
+}
