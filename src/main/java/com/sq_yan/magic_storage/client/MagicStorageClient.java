@@ -57,6 +57,9 @@ public final class MagicStorageClient {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> MenuScreens.register(MSMenus.MAGIC_STORAGE.get(), MagicStorageScreen::new));
+        event.enqueueWork(() -> {
+            MenuScreens.register(MSMenus.MAGIC_STORAGE.get(), MagicStorageScreen::new);
+            MenuScreens.register(MSMenus.RESONANCE_CONSOLE.get(), ResonanceConsoleScreen::new);
+        });
     }
 }

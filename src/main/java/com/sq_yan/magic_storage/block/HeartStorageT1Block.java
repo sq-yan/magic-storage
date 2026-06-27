@@ -2,6 +2,7 @@ package com.sq_yan.magic_storage.block;
 
 import com.mojang.serialization.MapCodec;
 import com.sq_yan.magic_storage.blockentity.HeartStorageBlockEntity;
+import com.sq_yan.magic_storage.menu.ResonanceConsoleMenu;
 import com.sq_yan.magic_storage.registry.MSItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -69,16 +71,22 @@ public class HeartStorageT1Block extends HeartStorageBlock {
         ItemStack main = player.getMainHandItem();
         boolean hasHeart = state.getValue(HAS_HEART);
 
-        // Reigall's Tuning Fork — re-tune the resonance: compact the network into the fewest cells.
+        // Reigall's Tuning Fork — open the Resonance Console (network map + per-cell view + defrag).
         if (main.is(MSItems.REIGALLS_TUNING_FORK.get())) {
-            if (!level.isClientSide() && level.getBlockEntity(pos) instanceof HeartStorageBlockEntity heart) {
-                boolean moved = heart.defragment();
-                if (moved) {
-                    level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 0.8F, 1.2F);
-                }
-                if (player instanceof ServerPlayer sp) {
-                    sp.displayClientMessage(Component.translatable(
-                        moved ? "message.magic_storage.defrag_done" : "message.magic_storage.defrag_empty"), true);
+            if (!level.isClientSide() && player instanceof ServerPlayer sp
+                && level.getBlockEntity(pos) instanceof HeartStorageBlockEntity heart) {
+                if (!hasHeart) {
+                    sp.displayClientMessage(Component.translatable("message.magic_storage.no_heart"), true);
+                } else {
+                    heart.refreshConnections();
+                    var positions = heart.getConnectedCellPositions();
+                    sp.openMenu(new SimpleMenuProvider(
+                        (id, inv, p) -> new ResonanceConsoleMenu(id, inv, heart),
+                        Component.translatable("gui.magic_storage.console.title")), buf -> {
+                        buf.writeBlockPos(pos);
+                        buf.writeVarInt(positions.size());
+                        for (BlockPos bp : positions) buf.writeBlockPos(bp);
+                    });
                 }
             }
             return InteractionResult.SUCCESS;
