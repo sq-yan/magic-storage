@@ -65,7 +65,7 @@
   "book.magic_storage.reigallus2.p3": "Crystal Expander\n3 by 3 crafting\n\n  G C G\n  C L C\n  G O G\n\nG — gold\nC — copper\nL — glass\nO — obsidian",
   "book.magic_storage.reigallus3.p1": "The Tuning Fork\n\nWhen the cells grew many, goods scattered across half-empty vessels, and the resonance fell out of tune.\n\nThe mages forged a fork tuned to the Heart's beat.",
   "book.magic_storage.reigallus3.p2": "Strike the Heart with the fork to open the Resonance Console — a map of the whole network. Re-tune there, and the contents settle into the fewest cells; the rest fall silent.\n\nThose you may remove and carry off, losing nothing.",
-  "book.magic_storage.reigallus3.p3": "Reigall's Tuning Fork\n3 by 3 crafting\n\n  G . G\n  G A G\n  . E .\n\nG — gold\nA — amethyst shard\nE — echo shard",
+  "book.magic_storage.reigallus3.p3": "Reigall's Tuning Fork\n3 by 3 crafting\n\n  G . G\n  G A G\n  . A .\n\nG — gold\nA — amethyst shard",
   "key.categories.magic_storage": "Magic Storage",
   "key.magic_storage.quick_dump": "Quick dump to storage",
   "key.magic_storage.toggle_protect": "Toggle slot protection mode"

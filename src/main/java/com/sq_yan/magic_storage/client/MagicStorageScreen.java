@@ -756,6 +756,10 @@ public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu
     }
 
     private void renderSuggestions(GuiGraphics gfx, int mouseX, int mouseY) {
+        // Lift the dropdown above the slot items (which render at a high z), otherwise item icons
+        // from the storage grid bleed through on top of the suggestion text.
+        gfx.pose().pushPose();
+        gfx.pose().translate(0, 0, 300);
         int x0 = this.leftPos + SUGGEST_X;
         int y0 = this.topPos + SUGGEST_Y;
         int rows = suggestions.size();
@@ -780,6 +784,7 @@ public class MagicStorageScreen extends AbstractContainerScreen<MagicStorageMenu
             }
             gfx.drawString(this.font, shown, x0 + 4, rowY + 2, isActive ? 0xFFFFFFFF : LABEL_COLOR, false);
         }
+        gfx.pose().popPose();
     }
 
     private void renderProtectedOverlays(GuiGraphics gfx) {

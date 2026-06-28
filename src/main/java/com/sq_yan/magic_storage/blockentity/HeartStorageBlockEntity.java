@@ -37,6 +37,7 @@ public class HeartStorageBlockEntity extends BlockEntity implements MenuProvider
     private int tickCounter = 0;
     private final LinkedHashSet<BlockPos> connected = new LinkedHashSet<>();
     private final LinkedHashSet<BlockPos> connectedExpanders = new LinkedHashSet<>();
+    private final Set<BlockPos> lastReachable = new HashSet<>();
     private boolean overflowAnnounced = false;
 
     public HeartStorageBlockEntity(BlockPos pos, BlockState state) {
@@ -65,6 +66,16 @@ public class HeartStorageBlockEntity extends BlockEntity implements MenuProvider
     public void refreshConnections() {
         if (level == null || level.isClientSide()) return;
         updateConnections();
+    }
+
+    /** Mark every cell this heart last managed as disconnected (grey) — called when the heart is removed. */
+    public void releaseAllCells() {
+        if (level == null) return;
+        for (BlockPos p : lastReachable) {
+            if (level.getBlockEntity(p) instanceof StorageCellBlockEntity c) {
+                c.setConnectedState(false);
+            }
+        }
     }
 
     /** Live connected cells, in connection order, filtered to non-removed BEs. */
@@ -236,6 +247,20 @@ public class HeartStorageBlockEntity extends BlockEntity implements MenuProvider
         } else if (!overflow) {
             overflowAnnounced = false;
         }
+
+        // Push the visual connected-state to each cell: coloured if it made the cap, grey if it's
+        // reachable-but-overflow. Cells that dropped out of reach since last tick (chain cut / removed)
+        // are reset to grey too, so a no-longer-served cell never stays lit.
+        for (StorageCellBlockEntity cell : reachable) {
+            cell.setConnectedState(connected.contains(cell.getBlockPos()));
+        }
+        for (BlockPos p : lastReachable) {
+            if (!reachableSet.contains(p) && level.getBlockEntity(p) instanceof StorageCellBlockEntity c) {
+                c.setConnectedState(false);
+            }
+        }
+        lastReachable.clear();
+        lastReachable.addAll(reachableSet);
 
         setChanged();
     }

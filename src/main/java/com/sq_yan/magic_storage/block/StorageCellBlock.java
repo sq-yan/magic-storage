@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,14 +20,17 @@ public class StorageCellBlock extends BaseEntityBlock {
     /** Visual fill indicator: 0 = green (≤50% / empty), 1 = yellow (≤67%), 2 = red (>67%). */
     public static final IntegerProperty FILL_LEVEL = IntegerProperty.create("fill_level", 0, 2);
 
+    /** Whether this cell is an active member of a heart's network (false → rendered grey / "not working"). */
+    public static final BooleanProperty CONNECTED = BooleanProperty.create("connected");
+
     public StorageCellBlock(Properties properties) {
         super(properties);
-        registerDefaultState(this.stateDefinition.any().setValue(FILL_LEVEL, 0));
+        registerDefaultState(this.stateDefinition.any().setValue(FILL_LEVEL, 0).setValue(CONNECTED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FILL_LEVEL);
+        builder.add(FILL_LEVEL, CONNECTED);
     }
 
     @Override

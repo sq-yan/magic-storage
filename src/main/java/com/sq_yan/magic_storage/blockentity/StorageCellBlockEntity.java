@@ -62,6 +62,16 @@ public class StorageCellBlockEntity extends BlockEntity {
         return items;
     }
 
+    /** Set the visual connected-state (grey when false); writes the blockstate only when it changes. */
+    public void setConnectedState(boolean connected) {
+        if (level == null || level.isClientSide()) return;
+        BlockState st = getBlockState();
+        if (!st.hasProperty(StorageCellBlock.CONNECTED)) return;
+        if (st.getValue(StorageCellBlock.CONNECTED) != connected) {
+            level.setBlock(getBlockPos(), st.setValue(StorageCellBlock.CONNECTED, connected), 3);
+        }
+    }
+
     public void dropContents(Level level, BlockPos pos) {
         for (int i = 0; i < items.getSlots(); i++) {
             Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), items.getStackInSlot(i));
