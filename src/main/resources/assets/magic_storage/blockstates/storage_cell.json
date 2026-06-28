@@ -1,7 +1,10 @@
 {
   "variants": {
-    "fill_level=0": { "model": "magic_storage:block/storage_cell_green" },
-    "fill_level=1": { "model": "magic_storage:block/storage_cell_yellow" },
-    "fill_level=2": { "model": "magic_storage:block/storage_cell_red" }
+    "connected=false,fill_level=0": { "model": "magic_storage:block/storage_cell_grey" },
+    "connected=false,fill_level=1": { "model": "magic_storage:block/storage_cell_grey" },
+    "connected=false,fill_level=2": { "model": "magic_storage:block/storage_cell_grey" },
+    "connected=true,fill_level=0":  { "model": "magic_storage:block/storage_cell_green" },
+    "connected=true,fill_level=1":  { "model": "magic_storage:block/storage_cell_yellow" },
+    "connected=true,fill_level=2":  { "model": "magic_storage:block/storage_cell_red" }
   }
 }

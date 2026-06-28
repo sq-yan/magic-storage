@@ -4,12 +4,11 @@
   "pattern": [
     "G G",
     "GAG",
-    " E "
+    " A "
   ],
   "key": {
     "G": "minecraft:gold_ingot",
-    "A": "minecraft:amethyst_shard",
-    "E": "minecraft:echo_shard"
+    "A": "minecraft:amethyst_shard"
   },
   "result": {
     "id": "magic_storage:reigalls_tuning_fork",

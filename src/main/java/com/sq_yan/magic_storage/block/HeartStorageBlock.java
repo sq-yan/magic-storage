@@ -63,6 +63,15 @@ public abstract class HeartStorageBlock extends BaseEntityBlock {
     }
 
     @Override
+    public @NotNull BlockState playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos,
+                                                 @NotNull BlockState state, @NotNull Player player) {
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof HeartStorageBlockEntity heart) {
+            heart.releaseAllCells();
+        }
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level,
                                                         @NotNull BlockPos pos, @NotNull Player player,
                                                         @NotNull BlockHitResult hit) {
